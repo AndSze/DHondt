@@ -1,0 +1,1 @@
+Python implementation of the proportional representation systems that allocates seats in the Polish parliament for the Elections in 2019.
