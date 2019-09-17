@@ -14,6 +14,7 @@ Constants.PARTIES[6] = 'MN'
 '''
 PARTIES = ('PiS', 'KO', 'SLD', 'PSL', 'Konf', 'BS', 'MN')
 NUMBER_OF_PARTIES = 7
+NUMBER_OF_QUOTINETS = 15
 
 ELECTION_THRESHOLD = 5.0
 

@@ -1,5 +1,6 @@
 import sys
 import Constants
+import numpy as np
 
 class Political_party:
 
@@ -12,19 +13,6 @@ class Political_party:
 
         # scores = percentage score of a party in a constituency
         self.scores = [None] * Constants.NUMBER_OF_CONSTITUENCIES
-        # number_of_votes_in_constituency = total number of votes received in constituency by a party
-        self.number_of_votes_in_constituency = [None] * Constants.NUMBER_OF_CONSTITUENCIES
-        '''
-        Used for calculation of number of eats received by the use of the D'Hondt method
-        quotient = V / (s + 1)
-        V - the total number of votes that party received
-        s - the number of seats that party has been allocated so far
-
-        Comment: 
-        There have been an assumption made that none of the parties can reach more than 10 seats in a constituency.
-        Therefore, only 15th first quotients are going to be calculated.
-        '''
-        self.first_fifteen_quotients = [None] * 15
 
     # increases the score of a party in the constituencies that have a lot of supporters the party
     def set_ratio(self):
@@ -49,7 +37,8 @@ class Political_party:
     def calculate_scores(self, constituency, isBelowThreshold):
 
         if isBelowThreshold:
-            self.scores[constituency.ID - 1] = self.score
+            self.reset_ratio()
+            self.scores[constituency.ID - 1] = self.score * self.ratio
         else:
             if self.name == Constants.PARTIES[0] and constituency.isPiS:
                 self.set_ratio()
@@ -70,101 +59,101 @@ class Political_party:
                 self.reset_ratio()
                 self.scores[constituency.ID - 1] = self.score * self.ratio
 
-            # PiS in LARGE_CITY_W
-            if constituency.constituency_bias == Constants.Biases.LARGE_CITY_W and self.name == Constants.PARTIES[0]:
-                self.scores[constituency.ID - 1] *= 0.8
-            # PO in LARGE_CITY_W
-            if constituency.constituency_bias == Constants.Biases.LARGE_CITY_W and self.name == Constants.PARTIES[1]:
-                self.scores[constituency.ID - 1] *= 1.2
-            # SLD in LARGE_CITY_W
-            if constituency.constituency_bias == Constants.Biases.LARGE_CITY_W and self.name == Constants.PARTIES[2]:
-                self.scores[constituency.ID - 1] *= 1.05
-            # KP in LARGE_CITY_W
-            if constituency.constituency_bias == Constants.Biases.LARGE_CITY_W and self.name == Constants.PARTIES[3]:
-                self.scores[constituency.ID - 1] *= 0.8
-            # KONF in LARGE_CITY_W
-            if constituency.constituency_bias == Constants.Biases.LARGE_CITY_W and self.name == Constants.PARTIES[4]:
-                self.scores[constituency.ID - 1] *= 1.1
+        # PiS in LARGE_CITY_W
+        if constituency.constituency_bias == Constants.Biases.LARGE_CITY_W and self.name == Constants.PARTIES[0]:
+            self.scores[constituency.ID - 1] *= 0.8
+        # PO in LARGE_CITY_W
+        if constituency.constituency_bias == Constants.Biases.LARGE_CITY_W and self.name == Constants.PARTIES[1]:
+            self.scores[constituency.ID - 1] *= 1.2
+        # SLD in LARGE_CITY_W
+        if constituency.constituency_bias == Constants.Biases.LARGE_CITY_W and self.name == Constants.PARTIES[2]:
+            self.scores[constituency.ID - 1] *= 1.05
+        # KP in LARGE_CITY_W
+        if constituency.constituency_bias == Constants.Biases.LARGE_CITY_W and self.name == Constants.PARTIES[3]:
+            self.scores[constituency.ID - 1] *= 0.8
+        # KONF in LARGE_CITY_W
+        if constituency.constituency_bias == Constants.Biases.LARGE_CITY_W and self.name == Constants.PARTIES[4]:
+            self.scores[constituency.ID - 1] *= 1.15
 
-            # PiS in MEDIUM_CITY_W
-            if constituency.constituency_bias == Constants.Biases.MEDIUM_CITY_W and self.name == Constants.PARTIES[0]:
-                self.scores[constituency.ID - 1] *= 0.9
-            # PO in MEDIUM_CITY_W
-            if constituency.constituency_bias == Constants.Biases.MEDIUM_CITY_W and self.name == Constants.PARTIES[1]:
-                self.scores[constituency.ID - 1] *= 1.1
-            # SLD in MEDIUM_CITY_W
-            if constituency.constituency_bias == Constants.Biases.MEDIUM_CITY_W and self.name == Constants.PARTIES[2]:
-                self.scores[constituency.ID - 1] *= 1.05
-            # KP in MEDIUM_CITY_W
-            if constituency.constituency_bias == Constants.Biases.MEDIUM_CITY_W and self.name == Constants.PARTIES[3]:
-                self.scores[constituency.ID - 1] *= 0.85
-            # KONF in MEDIUM_CITY_W
-            if constituency.constituency_bias == Constants.Biases.MEDIUM_CITY_W and self.name == Constants.PARTIES[4]:
-                self.scores[constituency.ID - 1] *= 1.05
+        # PiS in MEDIUM_CITY_W
+        if constituency.constituency_bias == Constants.Biases.MEDIUM_CITY_W and self.name == Constants.PARTIES[0]:
+            self.scores[constituency.ID - 1] *= 0.9
+        # PO in MEDIUM_CITY_W
+        if constituency.constituency_bias == Constants.Biases.MEDIUM_CITY_W and self.name == Constants.PARTIES[1]:
+            self.scores[constituency.ID - 1] *= 1.1
+        # SLD in MEDIUM_CITY_W
+        if constituency.constituency_bias == Constants.Biases.MEDIUM_CITY_W and self.name == Constants.PARTIES[2]:
+            self.scores[constituency.ID - 1] *= 1.05
+        # KP in MEDIUM_CITY_W
+        if constituency.constituency_bias == Constants.Biases.MEDIUM_CITY_W and self.name == Constants.PARTIES[3]:
+            self.scores[constituency.ID - 1] *= 0.85
+        # KONF in MEDIUM_CITY_W
+        if constituency.constituency_bias == Constants.Biases.MEDIUM_CITY_W and self.name == Constants.PARTIES[4]:
+            self.scores[constituency.ID - 1] *= 1.05
 
-            # PiS in SMALL_CITY_W
-            if constituency.constituency_bias == Constants.Biases.SMALL_CITY_W and self.name == Constants.PARTIES[0]:
-                self.scores[constituency.ID - 1] *= 0.95
-            # PO in SMALL_CITY_W
-            if constituency.constituency_bias == Constants.Biases.SMALL_CITY_W and self.name == Constants.PARTIES[1]:
-                self.scores[constituency.ID - 1] *= 1.05
-            # SLD in SMALL_CITY_W
-            if constituency.constituency_bias == Constants.Biases.SMALL_CITY_W and self.name == Constants.PARTIES[2]:
-                self.scores[constituency.ID - 1] *= 1.05
-            # KP in SMALL_CITY_W
-            if constituency.constituency_bias == Constants.Biases.SMALL_CITY_W and self.name == Constants.PARTIES[3]:
-                self.scores[constituency.ID - 1] *= 0.90
-            # KONF in SMALL_CITY_W
-            if constituency.constituency_bias == Constants.Biases.SMALL_CITY_W and self.name == Constants.PARTIES[4]:
-                self.scores[constituency.ID - 1] *= 1.0
+        # PiS in SMALL_CITY_W
+        if constituency.constituency_bias == Constants.Biases.SMALL_CITY_W and self.name == Constants.PARTIES[0]:
+            self.scores[constituency.ID - 1] *= 0.95
+        # PO in SMALL_CITY_W
+        if constituency.constituency_bias == Constants.Biases.SMALL_CITY_W and self.name == Constants.PARTIES[1]:
+            self.scores[constituency.ID - 1] *= 1.05
+        # SLD in SMALL_CITY_W
+        if constituency.constituency_bias == Constants.Biases.SMALL_CITY_W and self.name == Constants.PARTIES[2]:
+            self.scores[constituency.ID - 1] *= 1.05
+        # KP in SMALL_CITY_W
+        if constituency.constituency_bias == Constants.Biases.SMALL_CITY_W and self.name == Constants.PARTIES[3]:
+            self.scores[constituency.ID - 1] *= 0.90
+        # KONF in SMALL_CITY_W
+        if constituency.constituency_bias == Constants.Biases.SMALL_CITY_W and self.name == Constants.PARTIES[4]:
+            self.scores[constituency.ID - 1] *= 1.0
 
-            # PiS in LARGE_CITY_E
-            if constituency.constituency_bias == Constants.Biases.LARGE_CITY_E and self.name == Constants.PARTIES[0]:
-                self.scores[constituency.ID - 1] *= 1.05
-            # PO in LARGE_CITY_E
-            if constituency.constituency_bias == Constants.Biases.LARGE_CITY_E and self.name == Constants.PARTIES[1]:
-                self.scores[constituency.ID - 1] *= 0.95
-            # SLD in LARGE_CITY_E
-            if constituency.constituency_bias == Constants.Biases.LARGE_CITY_E and self.name == Constants.PARTIES[2]:
-                self.scores[constituency.ID - 1] *= 0.9
-            # KP in LARGE_CITY_E
-            if constituency.constituency_bias == Constants.Biases.LARGE_CITY_E and self.name == Constants.PARTIES[3]:
-                self.scores[constituency.ID - 1] *= 0.9
-            # KONF in LARGE_CITY_E
-            if constituency.constituency_bias == Constants.Biases.LARGE_CITY_E and self.name == Constants.PARTIES[4]:
-                self.scores[constituency.ID - 1] *= 1.1
+        # PiS in LARGE_CITY_E
+        if constituency.constituency_bias == Constants.Biases.LARGE_CITY_E and self.name == Constants.PARTIES[0]:
+            self.scores[constituency.ID - 1] *= 1.05
+        # PO in LARGE_CITY_E
+        if constituency.constituency_bias == Constants.Biases.LARGE_CITY_E and self.name == Constants.PARTIES[1]:
+            self.scores[constituency.ID - 1] *= 0.95
+        # SLD in LARGE_CITY_E
+        if constituency.constituency_bias == Constants.Biases.LARGE_CITY_E and self.name == Constants.PARTIES[2]:
+            self.scores[constituency.ID - 1] *= 0.9
+        # KP in LARGE_CITY_E
+        if constituency.constituency_bias == Constants.Biases.LARGE_CITY_E and self.name == Constants.PARTIES[3]:
+            self.scores[constituency.ID - 1] *= 0.9
+        # KONF in LARGE_CITY_E
+        if constituency.constituency_bias == Constants.Biases.LARGE_CITY_E and self.name == Constants.PARTIES[4]:
+            self.scores[constituency.ID - 1] *= 1.1
 
-            # PiS in MEDIUM_CITY_E
-            if constituency.constituency_bias == Constants.Biases.MEDIUM_CITY_E and self.name == Constants.PARTIES[0]:
-                self.scores[constituency.ID - 1] *= 1.1
-            # PO in MEDIUM_CITY_E
-            if constituency.constituency_bias == Constants.Biases.MEDIUM_CITY_E and self.name == Constants.PARTIES[1]:
-                self.scores[constituency.ID - 1] *= 0.9
-            # SLD in MEDIUM_CITY_E
-            if constituency.constituency_bias == Constants.Biases.MEDIUM_CITY_E and self.name == Constants.PARTIES[2]:
-                self.scores[constituency.ID - 1] *= 0.9
-            # KP in MEDIUM_CITY_E
-            if constituency.constituency_bias == Constants.Biases.MEDIUM_CITY_E and self.name == Constants.PARTIES[3]:
-                self.scores[constituency.ID - 1] *= 1.0
-            # KONF in MEDIUM_CITY_E
-            if constituency.constituency_bias == Constants.Biases.MEDIUM_CITY_E and self.name == Constants.PARTIES[4]:
-                self.scores[constituency.ID - 1] *= 0.7
+        # PiS in MEDIUM_CITY_E
+        if constituency.constituency_bias == Constants.Biases.MEDIUM_CITY_E and self.name == Constants.PARTIES[0]:
+            self.scores[constituency.ID - 1] *= 1.1
+        # PO in MEDIUM_CITY_E
+        if constituency.constituency_bias == Constants.Biases.MEDIUM_CITY_E and self.name == Constants.PARTIES[1]:
+            self.scores[constituency.ID - 1] *= 0.9
+        # SLD in MEDIUM_CITY_E
+        if constituency.constituency_bias == Constants.Biases.MEDIUM_CITY_E and self.name == Constants.PARTIES[2]:
+            self.scores[constituency.ID - 1] *= 0.9
+        # KP in MEDIUM_CITY_E
+        if constituency.constituency_bias == Constants.Biases.MEDIUM_CITY_E and self.name == Constants.PARTIES[3]:
+            self.scores[constituency.ID - 1] *= 1.0
+        # KONF in MEDIUM_CITY_E
+        if constituency.constituency_bias == Constants.Biases.MEDIUM_CITY_E and self.name == Constants.PARTIES[4]:
+            self.scores[constituency.ID - 1] *= 0.7
 
-            # PiS in SMALL_CITY_E
-            if constituency.constituency_bias == Constants.Biases.SMALL_CITY_E and self.name == Constants.PARTIES[0]:
-                self.scores[constituency.ID - 1] *= 1.2
-            # PO in SMALL_CITY_E
-            if constituency.constituency_bias == Constants.Biases.SMALL_CITY_E and self.name == Constants.PARTIES[1]:
-                self.scores[constituency.ID - 1] *= 0.8
-            # SLD in SMALL_CITY_E
-            if constituency.constituency_bias == Constants.Biases.SMALL_CITY_E and self.name == Constants.PARTIES[2]:
-                self.scores[constituency.ID - 1] *= 0.8
-            # KP in SMALL_CITY_E
-            if constituency.constituency_bias == Constants.Biases.SMALL_CITY_E and self.name == Constants.PARTIES[3]:
-                self.scores[constituency.ID - 1] *= 1.1
-            # KONF in SMALL_CITY_E
-            if constituency.constituency_bias == Constants.Biases.SMALL_CITY_E and self.name == Constants.PARTIES[4]:
-                self.scores[constituency.ID - 1] *= 0.9
+        # PiS in SMALL_CITY_E
+        if constituency.constituency_bias == Constants.Biases.SMALL_CITY_E and self.name == Constants.PARTIES[0]:
+            self.scores[constituency.ID - 1] *= 1.2
+        # PO in SMALL_CITY_E
+        if constituency.constituency_bias == Constants.Biases.SMALL_CITY_E and self.name == Constants.PARTIES[1]:
+            self.scores[constituency.ID - 1] *= 0.8
+        # SLD in SMALL_CITY_E
+        if constituency.constituency_bias == Constants.Biases.SMALL_CITY_E and self.name == Constants.PARTIES[2]:
+            self.scores[constituency.ID - 1] *= 0.8
+        # KP in SMALL_CITY_E
+        if constituency.constituency_bias == Constants.Biases.SMALL_CITY_E and self.name == Constants.PARTIES[3]:
+            self.scores[constituency.ID - 1] *= 1.1
+        # KONF in SMALL_CITY_E
+        if constituency.constituency_bias == Constants.Biases.SMALL_CITY_E and self.name == Constants.PARTIES[4]:
+            self.scores[constituency.ID - 1] *= 0.9
 
     # prints the score of a party in a constituency
     def print_score_in_constituency(self, constituency):
@@ -214,6 +203,28 @@ class Constituency:
         seats_for_parties[5] = seats for BS
         seats_for_parties[6] = seats for MN
         '''
+        # number_of_votes_for_parties = list of total number of votes received in constituency by each party
+        self.number_of_votes_for_parties = [None] * Constants.NUMBER_OF_PARTIES
+        '''
+        Used for calculation of number of eats received by the use of the D'Hondt method
+        quotient = V / (s + 1)
+        V - the total number of votes that party received
+        s - the number of seats that party has been allocated so far
+
+        Comment: 
+        There have been an assumption made that none of the parties can reach more than 10 seats in a constituency.
+        Therefore, only 15th first quotients are going to be calculated.
+        '''
+
+        #self.first_fifteen_quotients = [[None] * Constants.NUMBER_OF_QUOTINETS] * Constants.NUMBER_OF_PARTIES
+        # we cannot define a 2D array in the above way because Python uses shallow lists:
+        # first_fifteen_quotients[0][i] - points to the single list object and arr[1][i], arr[2][i] …arr[n-1][i]
+        # all point to the same list object too. In the above approach there is essentially only one integer object and
+        # only one list object being referenced by the all the rows of the array.
+
+        rows, cols = Constants.NUMBER_OF_QUOTINETS, Constants.NUMBER_OF_PARTIES
+        self.first_fifteen_quotients = np.array([[0 for x in range(rows)] for y in range(cols)], dtype='f')
+        # the above method creates 5 separate list objects where all elements can be modified independently
 
     # prints information about distinctive features of a constituency class object
     def print_constituency_info(self):
@@ -255,32 +266,38 @@ class Constituency:
 
     # prints adjusted scores, number of votes and D'Hondt quotients for each party in a constituency
     def print_score_in_constituency(self, political_party):
+        political_party_ID = Constants.PARTIES.index(political_party.name)
         #print("[Constituency Class] score in Constituency {0} {1} for {2}: {3: 5.2f}".format(self.ID, self.name,
         #     political_party.name, self.scores_for_parites[Constants.PARTIES.index(political_party.name)]))
         print("[Constituency Class] adjusted score in Constituency {0} {1} for {2}: {3: 5.2f}".format(self.ID, self.name,
-              political_party.name, self.adjusted_scores_for_parites[Constants.PARTIES.index(political_party.name)]))
+              political_party.name, self.adjusted_scores_for_parites[political_party_ID]))
         print("[Constituency Class] Number of votes in Constituency {0} {1} for {2}: {3}".format(self.ID, self.name,
-              political_party.name, political_party.number_of_votes_in_constituency[self.ID -1]))
-        print("[Constituency Class] First 15 quotients in Constituency {0} {1} for {2}: {3}".format(self.ID, self.name,
-              political_party.name, political_party.first_fifteen_quotients))
+              political_party.name, self.number_of_votes_for_parties[political_party_ID]))
+        #print("[Constituency Class] First 15 quotients in Constituency {0} {1} for {2}: {3}".format(self.ID, self.name,
+        #     political_party.name, self.first_fifteen_quotients[political_party_ID]))
 
     #
     def calculate_votes_for_parties(self, political_party):
-        political_party.number_of_votes_in_constituency[self.ID -1] = int(self.total_number_votes_in_constituency * \
+        political_party_ID = Constants.PARTIES.index(political_party.name)
+        self.number_of_votes_for_parties[political_party_ID] = int(self.total_number_votes_in_constituency * \
                   self.adjusted_scores_for_parites[Constants.PARTIES.index(political_party.name)] / 100)
 
     # calculate_quotients function calculates first 15th quotients for each party in a constituency based on
     # the number of votes received by the party
     def calculate_quotients(self, political_party):
-        if political_party.number_of_votes_in_constituency[self.ID -1] >= \
+        political_party_ID = Constants.PARTIES.index(political_party.name)
+        if self.number_of_votes_for_parties[political_party_ID] >= \
             self.total_number_votes_in_constituency * Constants.ELECTION_THRESHOLD / 100:
             iterator = 0
-            for quotient in range(0, len(political_party.first_fifteen_quotients)):
+            for quotient in range(0, Constants.NUMBER_OF_QUOTINETS):
                 iterator += 1
-                quotient = political_party.number_of_votes_in_constituency[self.ID - 1] / iterator
-                political_party.first_fifteen_quotients[iterator - 1] = quotient
+                quotient = self.number_of_votes_for_parties[political_party_ID] / iterator
+                self.first_fifteen_quotients[political_party_ID][iterator - 1] = quotient
+                if iterator == Constants.NUMBER_OF_QUOTINETS:
+                    iterator = 0
         else:
-            political_party.first_fifteen_quotients = [ 'N/A' ] * 15
+            for i in range (0, Constants.NUMBER_OF_QUOTINETS):
+                self.first_fifteen_quotients[political_party_ID][i] = 0
 
 # calculates an average value of elements in a list
 def average(lst):
@@ -297,7 +314,7 @@ def main(argv):
 
     # input for the scores of each political party in the elections
     # The order of political parties is fixed: Pis, KO, SLD, PSL, Konf, BS, MN
-    PERCENTAGES = [42.9, 23.2, 15.7, 8.6, 4.8, 2, 0.2]
+    PERCENTAGES = [42.9, 23.2, 15.7, 8.6, 5.1, 2, 0.2]
 
     # create empty lists of constituencies and parties. In these lists the objects of Constituency and Political_party
     # classes will be stored and respectively updated
@@ -403,6 +420,22 @@ def main(argv):
             temp_constituency.calculate_votes_for_parties(temp_party)
             temp_constituency.calculate_quotients(temp_party)
             temp_constituency.print_score_in_constituency(temp_party)
+
+        copy_of_first_fifteen_quotients = np.copy(temp_constituency.first_fifteen_quotients)
+        listOfCordinates = []
+        print("Number of seats: {0}".format(temp_constituency.seats_number))
+        for i in range (0, temp_constituency.seats_number):
+            result = np.where(copy_of_first_fifteen_quotients == np.amax(copy_of_first_fifteen_quotients))
+            listOfCordinates.append(list(zip(result[0], result[1])))
+            row_to_zero = result[0]
+            column_to_zero =  result[1]
+            #print("row_to_zero {0}".format(row_to_zero[0]))
+            #print("column_to_zero {0}".format(column_to_zero[0]))
+            copy_of_first_fifteen_quotients[row_to_zero[0]][column_to_zero[0]] = 0
+
+        print("Max value ID: {0}".format(listOfCordinates))
+
+    print("[Main] {0}".format(temp_constituency.first_fifteen_quotients))
 
 if __name__ == "__main__":
     main(sys.argv[0:])
